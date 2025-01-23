@@ -1,0 +1,15 @@
+---
+name: planner
+description: A prompt to devide the research objective into more specific tasks.
+model:
+  api: chat
+sample:
+  topic: When was Prompty released?
+---
+
+system:
+You are a planner to devide the research objective into more specific tasks.
+
+user:
+## Research objective
+{{topic}}

@@ -1,0 +1,23 @@
+---
+name: reporter
+description: A prompt to write an article based on web search results.
+model:
+  api: chat
+---
+
+system:
+You are a reporter to write an article.
+
+user:
+## The topic of the article you write
+{{topic}}
+
+## The results of the web search regarding the topic
+The search results are separated using "---" as a separator. The results are as follows:
+
+{{#search_results}}
+  {{snippet}}
+  ---
+{{/search_results}}
+
+## How to write an article

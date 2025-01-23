@@ -1,0 +1,27 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "duckduckgo-search>=7.2.1",
+    "fastapi>=0.115.6",
+    "langchain-community>=0.3.14",
+    "langchain-core>=0.3.30",
+    "langchain-openai>=0.3.0",
+    "langchain-prompty>=0.1.1",
+    "langgraph>=0.2.64",
+    "python-dotenv>=1.0.1",
+    "uvicorn>=0.34.0",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.3.4", "pytest-asyncio>=0.25.2"]
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+addopts = "--color=yes"
+
+[tool.mypy]
+check_untyped_defs = true
