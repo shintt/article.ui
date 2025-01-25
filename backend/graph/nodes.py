@@ -1,5 +1,4 @@
 import logging
-import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
@@ -21,11 +20,11 @@ if TYPE_CHECKING:
     from .types import DuckDuckGoResult, SearchSubject
 
 
-PROMPT_ROOT = Path(os.getcwd()) / "prompts"
-MODEL_NAME = "gpt-4o-mini"
-
-
 logger = logging.getLogger(__name__)
+
+
+PROMPT_ROOT = Path.cwd() / "prompts"
+MODEL_NAME = "gpt-4o-mini"
 
 
 def _create_planner():
