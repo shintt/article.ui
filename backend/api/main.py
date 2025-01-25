@@ -17,4 +17,4 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_api_route(router_chat)
+app.include_router(router_chat)

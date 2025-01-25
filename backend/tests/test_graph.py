@@ -10,7 +10,7 @@ def expected_nodes() -> set[str]:
     return {"planner", "web_search", "reporter"}
 
 
-@pytest.mark.skip(reason="run if you make changes to the graph structure.")
+# @pytest.mark.skip(reason="run if you make changes to the graph structure.")
 @pytest.mark.asyncio
 async def test_pass_all_expected_nodes(expected_nodes):
     graph = create_graph()

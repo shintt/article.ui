@@ -1,0 +1,31 @@
+---
+name: reporter_write
+description: A prompt to write an article based on web search results.
+model:
+  api: chat
+---
+
+system:
+You are a reporter to write an article.
+
+user:
+## The topic of the article you write
+{{topic}}
+
+{{#subject}}
+  {{subjects}}
+{{/subject}}
+
+## The results of the web search regarding the topic
+The search results are separated using "---" as a separator. The results are as follows:
+
+{{#search_results}}
+  {{snippet}}
+  ---
+{{/search_results}}
+
+## How to write an article
+Use the tools to create a visualized report.
+Note that when using the tools, the results are immediately rendered on the screen the user is viewing.
+The report will consist of text followed by figures or graphs in alternating order.
+In other words, you will need to output text and use some tool in one turn, repeating this process over multiple turns to create the report.

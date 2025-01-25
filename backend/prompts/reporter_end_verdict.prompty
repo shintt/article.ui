@@ -1,0 +1,17 @@
+---
+name: reporter_write
+description: A prompt that define it should call model again or not.
+model:
+  api: chat
+---
+
+user:
+## The topic of the article you write
+{{topic}}
+
+{{#subject}}
+  {{subjects}}
+{{/subject}}
+
+## The current writing process
+{{!Insert writing process into the `agent_scratchpad`.}}
