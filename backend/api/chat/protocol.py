@@ -55,7 +55,7 @@ class FinishStep(FinishMessage):
     isContinued: bool
 
 
-class BaseStreamProtocol(Enum):
+class StreamProtocolMixin(Enum):
     value: str
     model: Type[BaseModel]
 
@@ -75,7 +75,7 @@ class BaseStreamProtocol(Enum):
         return self.value.format(**formatted_kwargs)
 
 
-class DataStreamProtocol(BaseStreamProtocol):
+class DataStreamProtocol(StreamProtocolMixin):
     TextPart = ("0:{string}\n", Text)
     """The text parts are appended to the message as they are received."""
 
