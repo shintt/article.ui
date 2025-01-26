@@ -2,6 +2,7 @@
   "[prompty]": {
     "editor.tabSize": 2
   },
+  "jupyter.notebookFileRoot": "${workspaceFolder}",
   "python.testing.pytestArgs": [
     "tests"
   ],

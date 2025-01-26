@@ -5,8 +5,11 @@ https://sdk.vercel.ai/docs/ai-sdk-ui/stream-protocol
 
 import json
 from enum import Enum
-from typing import Any, Literal, Type
+from queue import Queue
+from typing import Any, AsyncGenerator, Literal, Type
 
+from langchain_core.messages import AIMessageChunk, ToolMessage
+from langgraph.graph.state import CompiledStateGraph
 from pydantic import BaseModel
 
 
@@ -29,12 +32,12 @@ class ToolDelta(BaseModel):
 
 
 class ToolCall(ToolStart):
-    args: dict
+    args: str
 
 
 class ToolResult(BaseModel):
     toolCallId: str
-    result: Any
+    result: str
 
 
 class FinishMessage(BaseModel):
@@ -126,3 +129,71 @@ class DataStreamProtocol(StreamProtocolMixin):
         FinishMessage,
     )
     """A part indicating the completion of a message with additional metadata, such as `FinishReason` and `Usage`."""
+
+
+async def consume_stream(
+    graph: CompiledStateGraph,
+    inputs: Any,
+    stream_nodes: list[str] = [],
+    **kwargs,
+) -> AsyncGenerator[str, None]:
+    # Tool queues.
+    call_q: Queue = Queue()
+    result_q: Queue = Queue()
+
+    # Usage variables.
+    # TODO: update to be able to track usage metadata.
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+
+    dsp = DataStreamProtocol
+
+    async for message, metadata in graph.astream(
+        inputs, stream_mode="messages", **kwargs
+    ):
+        if metadata["langgraph_node"] not in stream_nodes:  # type: ignore[index]
+            continue
+
+        if isinstance(message, AIMessageChunk):
+            if content := message.content:
+                yield dsp.TextPart.render(string=content)
+
+            if finish_reason := message.response_metadata.get("finish_reason"):
+                if finish_reason == "tool_calls":
+                    while not call_q.empty():
+                        tool_call = call_q.get()
+                        tool_call_id = tool_call["toolCallId"]
+                        tool_name = tool_call["toolName"]
+                        tool_args = tool_call["args"]
+                        yield dsp.ToolCallPart.render(
+                            toolCallId=tool_call_id,
+                            toolName=tool_name,
+                            args=tool_args,
+                        )
+                        result_q.put(tool_call)
+                else:
+                    yield dsp.FinishMessagePart.render(
+                        finishReason=finish_reason,
+                        promptTokens=prompt_tokens,
+                        completionTokens=completion_tokens,
+                    )
+
+            if tool_calls_info := message.additional_kwargs.get("tool_calls"):
+                func = tool_calls_info[0]["function"]
+                func_name = func["name"]
+                func_args = func["arguments"]
+                if tool_id := tool_calls_info[0]["id"]:
+                    call = {
+                        "toolCallId": tool_id,
+                        "toolName": func_name,
+                        "args": func_args,
+                    }
+                    call_q.put(call)
+
+                else:
+                    call["args"] += func_args
+
+        if isinstance(message, ToolMessage):
+            while not result_q.empty():
+                tool_result = result_q.get()
+                yield dsp.ToolResultPart.render(**tool_result)
